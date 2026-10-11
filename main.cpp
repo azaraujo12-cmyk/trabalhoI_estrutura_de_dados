@@ -9,6 +9,10 @@ int main() {
 
     grafo.lerArquivo("dados/grafo.txt");
 
-    cout << "Programa iniciado!" << endl;
+    cout << "Numero de vertices:"
+    << grafo.getNumeroVertices() << endl;
+    cout << "Numero de aresta:"
+    << grafo.getNumeroArestas() << endl;
 
     return 0;
+}
