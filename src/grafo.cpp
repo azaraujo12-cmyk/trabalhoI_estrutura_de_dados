@@ -74,6 +74,45 @@ void Grafo::imprimirMatrizAdjacencia() const {
     }
 }
 
+
+void Grafo::criarListaAdjacencia() {
+    listaAdjacencia.assign(numeroVertices, vector<int>());
+
+    for (const auto& aresta : arestas) {
+        int origem = aresta.first;
+        int destino = aresta.second;
+
+        if (origem < 1 || origem > numeroVertices ||
+            destino < 1 || destino > numeroVertices) {
+            cout << "Erro: aresta com vertice invalido." << endl;
+            listaAdjacencia.clear();
+            return;
+        }
+
+        listaAdjacencia[origem - 1].push_back(destino);
+        listaAdjacencia[destino - 1].push_back(origem);
+    }
+}
+
+void Grafo::imprimirListaAdjacencia() const {
+    if (numeroVertices > 0 && listaAdjacencia.empty()) {
+        cout << "Lista ainda nao foi criada." << endl;
+        return;
+    }
+
+    cout << "\nLista de adjacencia:\n";
+
+    for (int i = 0; i < numeroVertices; i++) {
+        cout << "Vertice " << i + 1 << ":";
+
+        for (int vizinho : listaAdjacencia[i]) {
+            cout << " " << vizinho;
+        }
+
+        cout << endl;
+    }
+}
+
 int Grafo::getNumeroVertices() const {
     return numeroVertices;
 

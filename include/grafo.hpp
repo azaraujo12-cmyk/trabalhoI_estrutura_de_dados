@@ -14,14 +14,20 @@ private:
 
     vector<pair<int, int>> arestas;
     vector<vector<int>> matrizAdjacencia;
+    vector<vector<int>> listaAdjacencia;
 
     public:
     Grafo();
 
     void lerArquivo(const string& nomeArquivo);
+
     void criarMatrizAdjacencia();
     void imprimirMatrizAdjacencia() const;
 
+    void criarListaAdjacencia();
+    void imprimirListaAdjacencia() const;
+
+    
     int getNumeroVertices() const;
     int getNumeroArestas() const;
 };

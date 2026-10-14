@@ -17,5 +17,9 @@ int main() {
     grafo.criarMatrizAdjacencia();
     grafo.imprimirMatrizAdjacencia();
 
+    grafo.criarListaAdjacencia();
+    grafo.imprimirListaAdjacencia();
+
+
     return 0;
 }
