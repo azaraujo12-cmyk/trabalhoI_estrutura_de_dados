@@ -16,6 +16,10 @@ void Grafo::lerArquivo(const string& nomeArquivo) {
         cout<< "Erro ao abrir o arquivo." << endl;
         return;
     }
+
+    // Limpa os dados caso o arquivo seja lido novamente
+    arestas.clear();
+    matrizAdjacencia.clear();
     
 arquivo >> numeroVertices;
 int origem;
@@ -25,9 +29,49 @@ while (arquivo >> origem >> destino) {
     arestas.push_back({origem, destino});
 }
 
-numeroArestas = arestas.size();
+numeroArestas = static_cast<int>(arestas.size());
 
 arquivo.close();
+}
+
+void Grafo::criarMatrizAdjacencia() {
+    matrizAdjacencia.assign(
+        numeroVertices,
+        vector<int>(numeroVertices, 0)
+    );
+
+     for (const auto& aresta : arestas) {
+        int origem = aresta.first;
+        int destino = aresta.second;
+
+        // O arquivo usa vertices de 1 ate numeroVertices.
+        // Os indices do vetor comecam em zero.
+        if (origem < 1 || origem > numeroVertices ||
+            destino < 1 || destino > numeroVertices) {
+            cout << "Erro: aresta com vertice invalido." << endl;
+            matrizAdjacencia.clear();
+            return;
+        }
+        matrizAdjacencia[origem - 1][destino - 1] = 1;
+        matrizAdjacencia[destino - 1][origem - 1] = 1;
+    }
+}
+
+void Grafo::imprimirMatrizAdjacencia() const {
+    if (matrizAdjacencia.empty()) {
+        cout << "Matriz ainda nao foi criada." << endl;
+        return;
+    }
+
+    cout << "\nMatriz de adjacencia:\n";
+
+    for (const auto& linha : matrizAdjacencia) {
+        for (int valor : linha) {
+            cout << valor << " ";
+        }
+
+        cout << endl;
+    }
 }
 
 int Grafo::getNumeroVertices() const {

@@ -14,5 +14,8 @@ int main() {
     cout << "Numero de aresta:"
     << grafo.getNumeroArestas() << endl;
 
+    grafo.criarMatrizAdjacencia();
+    grafo.imprimirMatrizAdjacencia();
+
     return 0;
 }

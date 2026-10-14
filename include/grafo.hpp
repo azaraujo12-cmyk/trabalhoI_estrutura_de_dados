@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 using namespace std;
 
@@ -12,11 +13,14 @@ private:
     int numeroArestas;
 
     vector<pair<int, int>> arestas;
+    vector<vector<int>> matrizAdjacencia;
 
     public:
     Grafo();
 
     void lerArquivo(const string& nomeArquivo);
+    void criarMatrizAdjacencia();
+    void imprimirMatrizAdjacencia() const;
 
     int getNumeroVertices() const;
     int getNumeroArestas() const;
