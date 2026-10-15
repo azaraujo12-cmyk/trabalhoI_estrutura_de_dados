@@ -1,0 +1,5 @@
+Numero de vertices: 5
+Numero de arestas: 5
+Grau minimo: 1
+Grau maximo: 3
+Grau medio: 2

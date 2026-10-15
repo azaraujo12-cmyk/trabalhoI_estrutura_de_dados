@@ -16,10 +16,11 @@ int main() {
 
     grafo.criarMatrizAdjacencia();
     grafo.imprimirMatrizAdjacencia();
-
+     
     grafo.criarListaAdjacencia();
     grafo.imprimirListaAdjacencia();
 
+    grafo.gerarEstatisticas("dados/estatisticas.txt");
 
     return 0;
 }

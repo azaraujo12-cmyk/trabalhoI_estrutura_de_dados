@@ -121,3 +121,75 @@ int Grafo::getNumeroVertices() const {
 int Grafo::getNumeroArestas() const {
     return numeroArestas;
 }
+
+
+void Grafo::gerarEstatisticas(const string& nomeArquivoSaida) {
+    ofstream arquivoSaida(nomeArquivoSaida);
+
+    if (!arquivoSaida.is_open()) {
+        cout << "Erro ao criar o arquivo de estatisticas." << endl;
+        return;
+    }
+
+    if (numeroVertices == 0) {
+        arquivoSaida << "O grafo nao possui vertices." << endl;
+        arquivoSaida.close();
+        return;
+    }
+
+    vector<int> graus(numeroVertices, 0);
+
+    for (const auto& aresta : arestas) {
+        int origem = aresta.first;
+        int destino = aresta.second;
+
+        if (origem < 1 || origem > numeroVertices ||
+            destino < 1 || destino > numeroVertices) {
+            cout << "Erro: aresta com vertice invalido." << endl;
+            arquivoSaida.close();
+            return;
+        }
+
+        graus[origem - 1]++;
+        graus[destino - 1]++;
+    }
+
+    int grauMinimo = graus[0];
+    int grauMaximo = graus[0];
+    int somaGraus = 0;
+
+    for (int grau : graus) {
+        if (grau < grauMinimo) {
+            grauMinimo = grau;
+        }
+
+        if (grau > grauMaximo) {
+            grauMaximo = grau;
+        }
+
+        somaGraus += grau;
+    }
+
+    double grauMedio =
+        static_cast<double>(somaGraus) / numeroVertices;
+
+    arquivoSaida << "Numero de vertices: "
+                 << numeroVertices << endl;
+
+    arquivoSaida << "Numero de arestas: "
+                 << numeroArestas << endl;
+
+    arquivoSaida << "Grau minimo: "
+                 << grauMinimo << endl;
+
+    arquivoSaida << "Grau maximo: "
+                 << grauMaximo << endl;
+
+    arquivoSaida << "Grau medio: "
+                 << grauMedio << endl;
+
+    arquivoSaida.close();
+
+    cout << "\nEstatisticas salvas em: "
+         << nomeArquivoSaida << endl;
+}

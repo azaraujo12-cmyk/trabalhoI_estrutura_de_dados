@@ -27,9 +27,11 @@ private:
     void criarListaAdjacencia();
     void imprimirListaAdjacencia() const;
 
-    
+
     int getNumeroVertices() const;
     int getNumeroArestas() const;
+
+    void gerarEstatisticas(const string& nomeArquivoSaida);
 };
 
 #endif
