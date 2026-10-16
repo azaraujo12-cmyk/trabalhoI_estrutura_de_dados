@@ -7,6 +7,7 @@ int main() {
 
     Grafo grafo;
     int opcao;
+    int verticeInicial;
 
     grafo.lerArquivo("dados/grafo.txt");
 
@@ -35,6 +36,15 @@ int main() {
     }
 
     grafo.gerarEstatisticas("dados/estatisticas.txt");
+
+    cout << "\nDigite o vertice inicial da BFS: ";
+    cin >> verticeInicial;
+
+    grafo.buscaLargura(
+        verticeInicial,
+        "dados/resultado_bfs.txt",
+        opcao
+    );
 
     return 0;
 }

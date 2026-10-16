@@ -32,6 +32,10 @@ private:
     int getNumeroArestas() const;
 
     void gerarEstatisticas(const string& nomeArquivoSaida);
+
+    void buscaLargura(int verticeInicial,
+                  const string& nomeArquivoSaida,
+                  int representacao);
 };
 
 #endif

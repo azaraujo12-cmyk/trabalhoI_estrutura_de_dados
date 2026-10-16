@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <queue>
 
 Grafo::Grafo(){
     numeroVertices = 0;
@@ -193,3 +194,97 @@ void Grafo::gerarEstatisticas(const string& nomeArquivoSaida) {
     cout << "\nEstatisticas salvas em: "
          << nomeArquivoSaida << endl;
 }
+
+
+void Grafo::buscaLargura(
+    int verticeInicial,
+    const string& nomeArquivoSaida,
+    int representacao
+) {
+    if (verticeInicial < 1 ||
+        verticeInicial > numeroVertices) {
+        cout << "Erro: vertice inicial invalido." << endl;
+        return;
+    }
+
+    if (representacao != 1 && representacao != 2) {
+        cout << "Erro: representacao invalida." << endl;
+        return;
+    }
+
+    if (representacao == 1 && matrizAdjacencia.empty()) {
+        cout << "Erro: matriz de adjacencia nao criada." << endl;
+        return;
+    }
+
+    if (representacao == 2 &&
+        numeroVertices > 0 && listaAdjacencia.empty()) {
+        cout << "Erro: lista de adjacencia nao criada." << endl;
+        return;
+    }
+
+    vector<int> pai(numeroVertices, -1);
+    vector<int> nivel(numeroVertices, -1);
+    vector<bool> visitado(numeroVertices, false);
+    queue<int> fila;
+
+    int raiz = verticeInicial - 1;
+
+    visitado[raiz] = true;
+    pai[raiz] = 0;
+    nivel[raiz] = 0;
+
+    fila.push(raiz);
+
+    while (!fila.empty()) {
+        int atual = fila.front();
+        fila.pop();
+
+        if (representacao == 1) {
+            for (int i = 0; i < numeroVertices; i++) {
+                if (matrizAdjacencia[atual][i] == 1 &&
+                    !visitado[i]) {
+                    visitado[i] = true;
+                    pai[i] = atual + 1;
+                    nivel[i] = nivel[atual] + 1;
+                    fila.push(i);
+                }
+            }
+        }
+        else {
+            for (int vizinho : listaAdjacencia[atual]) {
+                int indice = vizinho - 1;
+
+                if (!visitado[indice]) {
+                    visitado[indice] = true;
+                    pai[indice] = atual + 1;
+                    nivel[indice] = nivel[atual] + 1;
+                    fila.push(indice);
+                }
+            }
+        }
+    }
+
+    ofstream arquivoSaida(nomeArquivoSaida);
+
+    if (!arquivoSaida.is_open()) {
+        cout << "Erro ao criar o arquivo da BFS." << endl;
+        return;
+    }
+
+    arquivoSaida << "Busca em largura\n";
+    arquivoSaida << "Vertice inicial: " << verticeInicial << "\n";
+    arquivoSaida << "Vertice | Pai | Nivel\n";
+
+    for (int i = 0; i < numeroVertices; i++) {
+        arquivoSaida << i + 1 << " | "
+                     << pai[i] << " | "
+                     << nivel[i] << "\n";
+    }
+
+    arquivoSaida.close();
+
+    cout << "Resultado da BFS salvo em: "
+         << nomeArquivoSaida << endl;
+}
+
