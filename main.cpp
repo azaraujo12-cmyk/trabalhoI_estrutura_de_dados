@@ -46,5 +46,27 @@ int main() {
         opcao
     );
 
+    
+int origem;
+int destino;
+
+cout << "\nDigite o vertice de origem: ";
+cin >> origem;
+
+cout << "Digite o vertice de destino: ";
+cin >> destino;
+
+int distancia = grafo.calcularDistancia(
+    origem, destino, opcao
+);
+
+if (distancia >= 0) {
+    cout << "Distancia entre os vertices: "
+         << distancia << endl;
+} else {
+    cout << "Nao foi encontrado um caminho entre os vertices."
+         << endl;
+}
+
     return 0;
 }

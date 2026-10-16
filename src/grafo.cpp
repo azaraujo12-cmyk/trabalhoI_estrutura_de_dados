@@ -288,3 +288,70 @@ void Grafo::buscaLargura(
          << nomeArquivoSaida << endl;
 }
 
+
+int Grafo::calcularDistancia(
+    int origem,
+    int destino,
+    int representacao
+) {
+    if (origem < 1 || origem > numeroVertices ||
+        destino < 1 || destino > numeroVertices) {
+        cout << "Erro: vertice invalido." << endl;
+        return -1;
+    }
+
+    if (representacao != 1 && representacao != 2) {
+        cout << "Erro: representacao invalida." << endl;
+        return -1;
+    }
+
+    if (representacao == 1 && matrizAdjacencia.empty()) {
+        cout << "Erro: matriz de adjacencia nao criada." << endl;
+        return -1;
+    }
+
+    if (representacao == 2 &&
+        numeroVertices > 0 && listaAdjacencia.empty()) {
+        cout << "Erro: lista de adjacencia nao criada." << endl;
+        return -1;
+    }
+
+    vector<int> distancia(numeroVertices, -1);
+    queue<int> fila;
+
+    int inicio = origem - 1;
+    int fim = destino - 1;
+
+    distancia[inicio] = 0;
+    fila.push(inicio);
+
+    while (!fila.empty()) {
+        int atual = fila.front();
+        fila.pop();
+
+        if (atual == fim) {
+            return distancia[atual];
+        }
+
+        if (representacao == 1) {
+            for (int i = 0; i < numeroVertices; i++) {
+                if (matrizAdjacencia[atual][i] == 1 &&
+                    distancia[i] == -1) {
+                    distancia[i] = distancia[atual] + 1;
+                    fila.push(i);
+                }
+            }
+        } else {
+            for (int vizinho : listaAdjacencia[atual]) {
+                int indice = vizinho - 1;
+
+                if (distancia[indice] == -1) {
+                    distancia[indice] = distancia[atual] + 1;
+                    fila.push(indice);
+                }
+            }
+        }
+    }
+
+    return -1;
+}

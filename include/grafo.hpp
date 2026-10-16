@@ -36,6 +36,8 @@ private:
     void buscaLargura(int verticeInicial,
                   const string& nomeArquivoSaida,
                   int representacao);
+
+                  int calcularDistancia(int origem, int destino, int representacao);
 };
 
 #endif
