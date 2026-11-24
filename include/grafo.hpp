@@ -7,15 +7,26 @@
 #include <chrono>
 using namespace std;
 
+// Representa uma aresta com peso
+struct Aresta {
+    int origem;
+    int destino;
+    double peso;
+};
+
 class Grafo {
 private:
 // Guada a quantidade de vertices e arestas.
     int numeroVertices;
     int numeroArestas;
-// Armazena as arestas como pares de vertices.
-    vector<pair<int, int>> arestas;
-    vector<vector<int>> matrizAdjacencia;
-    vector<vector<int>> listaAdjacencia;
+
+    // Armazena as arestas com seus pesos
+    vector<Aresta> arestas;
+
+    // Representacoes do grafo
+    vector<vector<double>> matrizAdjacencia;
+    vector<vector<pair<int, double>>> listaAdjacencia;
+
 
     public:
     Grafo();

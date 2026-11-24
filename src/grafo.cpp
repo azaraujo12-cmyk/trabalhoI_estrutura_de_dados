@@ -23,19 +23,51 @@ void Grafo::lerArquivo(const string& nomeArquivo) {
     // Limpa os dados caso o arquivo seja lido novamente
     arestas.clear();
     matrizAdjacencia.clear();
-    
-arquivo >> numeroVertices;
-int origem;
-int destino;
+    listaAdjacencia.clear();
 
- // Le as arestas ate o final do arquivo.
-while (arquivo >> origem >> destino) {
-    arestas.push_back({origem, destino});
-}
-// calcula a quantidade total de arestas
-numeroArestas = static_cast<int>(arestas.size());
+    numeroVertices = 0;
+    numeroArestas = 0;
 
-arquivo.close();
+    // Le a quantidade de vertices
+    arquivo >> numeroVertices;
+
+     if (arquivo.fail() || numeroVertices <= 0) {
+        cout << "Erro: quantidade de vertices invalida." << endl;
+        numeroVertices = 0;
+        arquivo.close();
+        return;
+    }
+
+    int origem;
+    int destino;
+    double peso;
+
+    // Le origem, destino e peso de cada aresta
+    while (arquivo >> origem >> destino >> peso) {
+
+        // Verifica se os vertices sao validos
+        if (origem < 1 || origem > numeroVertices ||
+            destino < 1 || destino > numeroVertices) {
+
+            cout << "Erro: aresta com vertice invalido." << endl;
+
+            arestas.clear();
+            numeroVertices = 0;
+            numeroArestas = 0;
+
+            arquivo.close();
+            return;
+        }
+
+        // Armazena a aresta com seu peso
+        arestas.push_back({origem, destino, peso});
+    }
+
+    numeroArestas = static_cast<int>(arestas.size());
+
+    arquivo.close();
+
+    cout << "Grafo com pesos carregado com sucesso!" << endl;
 }
 
 
