@@ -54,6 +54,14 @@ private:
 double testarTempoBFS(int representacao, int repeticoes);                  
 
 int calcularDistancia(int origem, int destino, int representacao);
+
+void dijkstraVetor(
+    int verticeInicial,
+    int representacao,
+    const string& nomeArquivoSaida
+);
+
+   
 };
 
 #endif

@@ -4,6 +4,8 @@
 #include <iostream>
 #include <queue>
 #include <vector>
+#include <limits>
+#include <cmath>
 
 Grafo::Grafo(){
     numeroVertices = 0;
@@ -72,27 +74,39 @@ void Grafo::lerArquivo(const string& nomeArquivo) {
 
 
 void Grafo::criarMatrizAdjacencia() {
-    // Cria uma matriz quadrada preencida por zeros
+     // Representa a ausencia de conexao com infinito
+    double infinito = numeric_limits<double>::infinity();
+
+    // Cria a matriz preenchida com infinito
     matrizAdjacencia.assign(
         numeroVertices,
-        vector<int>(numeroVertices, 0)
+        vector<double>(numeroVertices, infinito)
     );
-      
-    // percorre todas as arestas do grafo
-     for (const auto& aresta : arestas) {
-        int origem = aresta.first;
-        int destino = aresta.second;
 
-        // verifica se os vertices estão dentro do limites
+    // A distancia de um vertice para ele mesmo e zero
+    for (int i = 0; i < numeroVertices; i++) {
+        matrizAdjacencia[i][i] = 0.0;
+    }
+
+    // Percorre todas as arestas
+    for (const auto& aresta : arestas) {
+
+        int origem = aresta.origem;
+        int destino = aresta.destino;
+        double peso = aresta.peso;
+
+        // Verifica se os vertices sao validos
         if (origem < 1 || origem > numeroVertices ||
             destino < 1 || destino > numeroVertices) {
+
             cout << "Erro: aresta com vertice invalido." << endl;
             matrizAdjacencia.clear();
             return;
         }
-        // marca a conexão nos dois sentidos,pq o grafo e não direcionado
-        matrizAdjacencia[origem - 1][destino - 1] = 1;
-        matrizAdjacencia[destino - 1][origem - 1] = 1;
+
+        // Armazena o peso nos dois sentidos
+        matrizAdjacencia[origem - 1][destino - 1] = peso;
+        matrizAdjacencia[destino - 1][origem - 1] = peso;
     }
 }
 
@@ -106,8 +120,12 @@ void Grafo::imprimirMatrizAdjacencia() const {
 
     // Imprime cada linha e cada valor da matriz
 for (const auto& linha : matrizAdjacencia) {
-        for (int valor : linha) {
-            cout << valor << " ";
+        for ( double valor : linha) {
+            if (isinf(valor)){
+                cout <<"INF ";
+            }else{
+                cout << valor << " ";
+            }
         }
 
         cout << endl;
@@ -116,23 +134,31 @@ for (const auto& linha : matrizAdjacencia) {
 
 
 void Grafo::criarListaAdjacencia() {
-    listaAdjacencia.assign(numeroVertices, vector<int>());
+    // Cria uma lista para cada vertice
+    listaAdjacencia.assign(
+        numeroVertices,
+        vector<pair<int, double>>()
+    );
 
-    // percorre todas as arestas 
+    // Percorre todas as arestas
     for (const auto& aresta : arestas) {
-        int origem = aresta.first;
-        int destino = aresta.second;
 
+        int origem = aresta.origem;
+        int destino = aresta.destino;
+        double peso = aresta.peso;
+
+        // Verifica se os vertices sao validos
         if (origem < 1 || origem > numeroVertices ||
             destino < 1 || destino > numeroVertices) {
+
             cout << "Erro: aresta com vertice invalido." << endl;
             listaAdjacencia.clear();
             return;
         }
 
-        // Adiciona os vizinhos em todos os sentidos
-        listaAdjacencia[origem - 1].push_back(destino);
-        listaAdjacencia[destino - 1].push_back(origem);
+        // Adiciona os vizinhos com seus respectivos pesos
+        listaAdjacencia[origem - 1].push_back({destino, peso});
+        listaAdjacencia[destino - 1].push_back({origem, peso});
     }
 }
 // Imprimi os vizinhos de cada vertice
@@ -144,13 +170,16 @@ void Grafo::imprimirListaAdjacencia() const {
 
     cout << "\nLista de adjacencia:\n";
 
-// percorre todos os vertices 
+    // Percorre todos os vertices
     for (int i = 0; i < numeroVertices; i++) {
+
         cout << "Vertice " << i + 1 << ":";
 
-       //Imprime od vizinhos do vertice atual
-        for (int vizinho : listaAdjacencia[i]) {
-            cout << " " << vizinho;
+        // Percorre os vizinhos e seus pesos
+        for (const auto& vizinho : listaAdjacencia[i]) {
+
+            cout << " (" << vizinho.first
+                 << ", " << vizinho.second << ")";
         }
 
         cout << endl;
@@ -185,8 +214,8 @@ void Grafo::gerarEstatisticas(const string& nomeArquivoSaida) {
     vector<int> graus(numeroVertices, 0);
 // conta as conexoes de cada vertice
     for (const auto& aresta : arestas) {
-        int origem = aresta.first;
-        int destino = aresta.second;
+        int origem = aresta.origem;
+        int destino = aresta.destino;
 
         if (origem < 1 || origem > numeroVertices ||
             destino < 1 || destino > numeroVertices) {
@@ -286,7 +315,7 @@ void Grafo::buscaLargura(
     // Percorre os vizinhos usando a matriz.
         if (representacao == 1) {
             for (int i = 0; i < numeroVertices; i++) {
-                if (matrizAdjacencia[atual][i] == 1 &&
+                if (isfinite(matrizAdjacencia[atual][i]) && i!= atual && 
                     !visitado[i]) {
                     
                     // Marca o vizinho e registra pai e nivel.    
@@ -299,8 +328,8 @@ void Grafo::buscaLargura(
         }
         // Percorre os vizinhos usando a lista.
         else {
-            for (int vizinho : listaAdjacencia[atual]) {
-                int indice = vizinho - 1;
+            for (const auto& vizinho : listaAdjacencia[atual]) {
+                int indice = vizinho. first - 1;
 
                 if (!visitado[indice]) {
                     // Marca o vizinho e registra pai e nivel.
@@ -386,7 +415,7 @@ int Grafo::calcularDistancia(
   // Procura os vizinhos usando a matriz.
         if (representacao == 1) {
             for (int i = 0; i < numeroVertices; i++) {
-                if (matrizAdjacencia[atual][i] == 1 &&
+                if (isfinite(matrizAdjacencia[atual][i]) && i != atual &&
                     distancia[i] == -1) {
                     distancia[i] = distancia[atual] + 1;
                     fila.push(i);
@@ -395,8 +424,8 @@ int Grafo::calcularDistancia(
         }
         // Procura os vizinhos usando a lista.
         else {
-            for (int vizinho : listaAdjacencia[atual]) {
-                int indice = vizinho - 1;
+            for (const auto& vizinho : listaAdjacencia[atual]) {
+                int indice = vizinho.first - 1;
 
                 if (distancia[indice] == -1) {
                     distancia[indice] = distancia[atual] + 1;
@@ -448,15 +477,15 @@ double Grafo::testarTempoBFS(int representacao, int repeticoes) {
 
             if (representacao == 1) {
                 for (int v = 0; v < numeroVertices; v++) {
-                    if (matrizAdjacencia[atual][v] != 0 &&
-                        nivel[v] == -1) {
+                    if (isfinite(matrizAdjacencia[atual][v]) &&
+                       v != atual && nivel[v] == -1) {
                         nivel[v] = nivel[atual] + 1;
                         fila.push(v);
                     }
                 }
             } else {
-                for (int vizinho : listaAdjacencia[atual]) {
-                    int v = vizinho - 1;
+                for (const auto& vizinho : listaAdjacencia[atual]) {
+                    int v = vizinho.first - 1;
 
                     if (nivel[v] == -1) {
                         nivel[v] = nivel[atual] + 1;
@@ -473,4 +502,179 @@ double Grafo::testarTempoBFS(int representacao, int repeticoes) {
 
     return duracao.count() / repeticoes;
 }
+
+
+
+void Grafo::dijkstraVetor(
+    int verticeInicial,
+    int representacao,
+    const string& nomeArquivoSaida
+) {
+    // Verifica se o vertice inicial e valido.
+    if (verticeInicial < 1 || verticeInicial > numeroVertices) {
+        cout << "Erro: vertice inicial invalido." << endl;
+        return;
+    }
+
+    // Verifica a representacao escolhida.
+    if (representacao != 1 && representacao != 2) {
+        cout << "Erro: representacao invalida." << endl;
+        return;
+    }
+
+    // Verifica se a representacao foi criada.
+    if (representacao == 1 && matrizAdjacencia.empty()) {
+        cout << "Erro: matriz nao criada." << endl;
+        return;
+    }
+
+    if (representacao == 2 && listaAdjacencia.empty()) {
+        cout << "Erro: lista nao criada." << endl;
+        return;
+    }
+
+    // Dijkstra nao pode trabalhar com pesos negativos.
+    for (const auto& aresta : arestas) {
+        if (aresta.peso < 0) {
+            cout << "Dijkstra nao pode ser executado: "
+                 << "o grafo possui peso negativo." << endl;
+            return;
+        }
+    }
+
+    // Representa uma distancia ainda desconhecida.
+    double infinito = numeric_limits<double>::infinity();
+
+    // Guarda a menor distancia conhecida para cada vertice.
+    vector<double> distancia(numeroVertices, infinito);
+
+    // Guarda o vertice anterior no caminho minimo.
+    vector<int> pai(numeroVertices, -1);
+
+    // Indica quais vertices ja foram processados.
+    vector<bool> visitado(numeroVertices, false);
+
+    // Converte o vertice inicial para indice do vetor.
+    int origem = verticeInicial - 1;
+
+    // A distancia da origem para ela mesma e zero.
+    distancia[origem] = 0.0;
+
+    // Executa o algoritmo.
+    for (int i = 0; i < numeroVertices; i++) {
+
+        int atual = -1;
+        double menorDistancia = infinito;
+
+        // Procura o vertice nao visitado com menor distancia.
+        for (int v = 0; v < numeroVertices; v++) {
+            if (!visitado[v] && distancia[v] < menorDistancia) {
+                menorDistancia = distancia[v];
+                atual = v;
+            }
+        }
+
+        // Se nao encontrou, os demais vertices sao inalcançaveis.
+        if (atual == -1) {
+            break;
+        }
+
+        // Marca o vertice como visitado.
+        visitado[atual] = true;
+
+        // Percorre os vizinhos usando a matriz.
+        if (representacao == 1) {
+
+            for (int v = 0; v < numeroVertices; v++) {
+
+                double peso = matrizAdjacencia[atual][v];
+
+                if (v != atual && isfinite(peso) && !visitado[v]) {
+
+                    double novaDistancia = distancia[atual] + peso;
+
+                    if (novaDistancia < distancia[v]) {
+                        distancia[v] = novaDistancia;
+                        pai[v] = atual;
+                    }
+                }
+            }
+        }
+
+        // Percorre os vizinhos usando a lista.
+        else {
+
+            for (const auto& vizinho : listaAdjacencia[atual]) {
+
+                int v = vizinho.first - 1;
+                double peso = vizinho.second;
+
+                if (!visitado[v]) {
+
+                    double novaDistancia = distancia[atual] + peso;
+
+                    if (novaDistancia < distancia[v]) {
+                        distancia[v] = novaDistancia;
+                        pai[v] = atual;
+                    }
+                }
+            }
+        }
+    }
+
+    // Abre o arquivo para salvar os resultados.
+    ofstream arquivoSaida(nomeArquivoSaida);
+
+    if (!arquivoSaida.is_open()) {
+        cout << "Erro ao criar arquivo do Dijkstra." << endl;
+        return;
+    }
+
+    arquivoSaida << "Resultado do Dijkstra usando vetor\n";
+    arquivoSaida << "Vertice inicial: " << verticeInicial << "\n\n";
+
+    arquivoSaida << "Vertice | Distancia | Caminho minimo\n";
+
+    // Apresenta a distancia e o caminho de cada vertice.
+    for (int v = 0; v < numeroVertices; v++) {
+
+        arquivoSaida << v + 1 << " | ";
+
+        if (!isfinite(distancia[v])) {
+            arquivoSaida << "INF | Nao existe caminho\n";
+        }
+        else {
+
+            arquivoSaida << distancia[v] << " | ";
+
+            // Reconstrói o caminho usando o vetor de pais.
+            vector<int> caminho;
+            int atual = v;
+
+            while (atual != -1) {
+                caminho.push_back(atual + 1);
+                atual = pai[atual];
+            }
+
+            // Imprime o caminho da origem ate o destino.
+            for (int i = static_cast<int>(caminho.size()) - 1;
+                 i >= 0; i--) {
+
+                arquivoSaida << caminho[i];
+
+                if (i > 0) {
+                    arquivoSaida << " -> ";
+                }
+            }
+
+            arquivoSaida << "\n";
+        }
+    }
+
+    arquivoSaida.close();
+
+    cout << "\nResultado do Dijkstra salvo em: "
+         << nomeArquivoSaida << endl;
+}
+
 

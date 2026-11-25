@@ -24,12 +24,13 @@ int main() {
 // Cria e imprime a representacao escolhida.
     if (opcao == 1) {
         grafo.criarMatrizAdjacencia();
-        cout << "Matriz de adjacencia criada com sucesso." << endl;
-       // grafo.imprimirMatrizAdjacencia();
+       // cout << "Matriz de adjacencia criada com sucesso." << endl;
+       grafo.imprimirMatrizAdjacencia();
     }
     else if (opcao == 2) {
         grafo.criarListaAdjacencia();
-        cout << "Lista de adjacencia criada com sucesso." << endl;
+        //cout << "Lista de adjacencia criada com sucesso." << endl;
+        grafo.imprimirListaAdjacencia();
     }
     else {
         cout << "Opcao invalida." << endl;
@@ -84,6 +85,18 @@ if (distancia >= 0) {
     cout << "Nao foi encontrado um caminho entre os vertices."
          << endl;
 }
+
+// Executa o Dijkstra usando vetor
+    int verticeDijkstra;
+
+    cout << "\nDigite o vertice inicial do Dijkstra: ";
+    cin >> verticeDijkstra;
+
+    grafo.dijkstraVetor(
+        verticeDijkstra,
+        opcao,
+        "dados/resultado_dijkstra_vetor.txt"
+    );
 
     return 0;
 }
