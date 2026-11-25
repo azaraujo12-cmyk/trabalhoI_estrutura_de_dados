@@ -6,6 +6,7 @@
 #include <vector>
 #include <limits>
 #include <cmath>
+#include <functional>
 
 Grafo::Grafo(){
     numeroVertices = 0;
@@ -504,25 +505,25 @@ double Grafo::testarTempoBFS(int representacao, int repeticoes) {
 }
 
 
-
-void Grafo::dijkstraVetor(
+void Grafo::executarDijkstra(
     int verticeInicial,
     int representacao,
-    const string& nomeArquivoSaida
+    const string& nomeArquivoSaida,
+    bool usarHeap
 ) {
-    // Verifica se o vertice inicial e valido.
+    // Verifica se o vertice inicial e valido
     if (verticeInicial < 1 || verticeInicial > numeroVertices) {
         cout << "Erro: vertice inicial invalido." << endl;
         return;
     }
 
-    // Verifica a representacao escolhida.
+    // Verifica a representacao escolhida
     if (representacao != 1 && representacao != 2) {
         cout << "Erro: representacao invalida." << endl;
         return;
     }
 
-    // Verifica se a representacao foi criada.
+    // Verifica se a representacao foi criada
     if (representacao == 1 && matrizAdjacencia.empty()) {
         cout << "Erro: matriz nao criada." << endl;
         return;
@@ -533,7 +534,7 @@ void Grafo::dijkstraVetor(
         return;
     }
 
-    // Dijkstra nao pode trabalhar com pesos negativos.
+    // Dijkstra nao aceita pesos negativos
     for (const auto& aresta : arestas) {
         if (aresta.peso < 0) {
             cout << "Dijkstra nao pode ser executado: "
@@ -542,51 +543,70 @@ void Grafo::dijkstraVetor(
         }
     }
 
-    // Representa uma distancia ainda desconhecida.
     double infinito = numeric_limits<double>::infinity();
 
-    // Guarda a menor distancia conhecida para cada vertice.
     vector<double> distancia(numeroVertices, infinito);
-
-    // Guarda o vertice anterior no caminho minimo.
     vector<int> pai(numeroVertices, -1);
-
-    // Indica quais vertices ja foram processados.
     vector<bool> visitado(numeroVertices, false);
 
-    // Converte o vertice inicial para indice do vetor.
     int origem = verticeInicial - 1;
-
-    // A distancia da origem para ela mesma e zero.
     distancia[origem] = 0.0;
 
-    // Executa o algoritmo.
+    // Fila de prioridade usada na versao com heap
+    priority_queue<
+        pair<double, int>,
+        vector<pair<double, int>>,
+        greater<pair<double, int>>
+    > fila;
+
+    if (usarHeap) {
+        fila.push({0.0, origem});
+    }
+
+    // Enquanto houver vertices para processar
     for (int i = 0; i < numeroVertices; i++) {
 
         int atual = -1;
-        double menorDistancia = infinito;
 
-        // Procura o vertice nao visitado com menor distancia.
-        for (int v = 0; v < numeroVertices; v++) {
-            if (!visitado[v] && distancia[v] < menorDistancia) {
-                menorDistancia = distancia[v];
-                atual = v;
+        // Escolha do menor vertice usando vetor
+        if (!usarHeap) {
+            double menorDistancia = infinito;
+
+            for (int v = 0; v < numeroVertices; v++) {
+                if (!visitado[v] && distancia[v] < menorDistancia) {
+                    menorDistancia = distancia[v];
+                    atual = v;
+                }
+            }
+
+            if (atual == -1) {
+                break;
             }
         }
 
-        // Se nao encontrou, os demais vertices sao inalcançaveis.
-        if (atual == -1) {
-            break;
+        // Escolha do menor vertice usando heap
+        else {
+            if (fila.empty()) {
+                break;
+            }
+
+            atual = fila.top().second;
+            double distanciaAtual = fila.top().first;
+            fila.pop();
+
+            // Ignora entradas antigas da fila
+            if (visitado[atual] || distanciaAtual > distancia[atual]) {
+                i--;
+                continue;
+            }
         }
 
-        // Marca o vertice como visitado.
         visitado[atual] = true;
 
-        // Percorre os vizinhos usando a matriz.
+        // Percorre os vizinhos usando matriz
         if (representacao == 1) {
 
             for (int v = 0; v < numeroVertices; v++) {
-
                 double peso = matrizAdjacencia[atual][v];
 
                 if (v != atual && isfinite(peso) && !visitado[v]) {
@@ -596,16 +616,19 @@ void Grafo::dijkstraVetor(
                     if (novaDistancia < distancia[v]) {
                         distancia[v] = novaDistancia;
                         pai[v] = atual;
+
+                        if (usarHeap) {
+                            fila.push({novaDistancia, v});
+                        }
                     }
                 }
             }
         }
 
-        // Percorre os vizinhos usando a lista.
+        // Percorre os vizinhos usando lista
         else {
 
             for (const auto& vizinho : listaAdjacencia[atual]) {
-
                 int v = vizinho.first - 1;
                 double peso = vizinho.second;
 
@@ -616,13 +639,17 @@ void Grafo::dijkstraVetor(
                     if (novaDistancia < distancia[v]) {
                         distancia[v] = novaDistancia;
                         pai[v] = atual;
+
+                        if (usarHeap) {
+                            fila.push({novaDistancia, v});
+                        }
                     }
                 }
             }
         }
     }
 
-    // Abre o arquivo para salvar os resultados.
+    // Cria o arquivo de resultado
     ofstream arquivoSaida(nomeArquivoSaida);
 
     if (!arquivoSaida.is_open()) {
@@ -630,24 +657,25 @@ void Grafo::dijkstraVetor(
         return;
     }
 
-    arquivoSaida << "Resultado do Dijkstra usando vetor\n";
-    arquivoSaida << "Vertice inicial: " << verticeInicial << "\n\n";
+    if (usarHeap) {
+        arquivoSaida << "Resultado do Dijkstra usando heap\n";
+    } else {
+        arquivoSaida << "Resultado do Dijkstra usando vetor\n";
+    }
 
+    arquivoSaida << "Vertice inicial: " << verticeInicial << "\n\n";
     arquivoSaida << "Vertice | Distancia | Caminho minimo\n";
 
-    // Apresenta a distancia e o caminho de cada vertice.
     for (int v = 0; v < numeroVertices; v++) {
 
         arquivoSaida << v + 1 << " | ";
 
         if (!isfinite(distancia[v])) {
             arquivoSaida << "INF | Nao existe caminho\n";
-        }
-        else {
+        } else {
 
             arquivoSaida << distancia[v] << " | ";
 
-            // Reconstrói o caminho usando o vetor de pais.
             vector<int> caminho;
             int atual = v;
 
@@ -656,10 +684,7 @@ void Grafo::dijkstraVetor(
                 atual = pai[atual];
             }
 
-            // Imprime o caminho da origem ate o destino.
-            for (int i = static_cast<int>(caminho.size()) - 1;
-                 i >= 0; i--) {
-
+            for (int i = static_cast<int>(caminho.size()) - 1; i >= 0; i--) {
                 arquivoSaida << caminho[i];
 
                 if (i > 0) {
@@ -678,3 +703,31 @@ void Grafo::dijkstraVetor(
 }
 
 
+// Dijkstra usando vetor
+void Grafo::dijkstraVetor(
+    int verticeInicial,
+    int representacao,
+    const string& nomeArquivoSaida
+) {
+    executarDijkstra(
+        verticeInicial,
+        representacao,
+        nomeArquivoSaida,
+        false
+    );
+}
+
+
+// Dijkstra usando heap
+void Grafo::dijkstraHeap(
+    int verticeInicial,
+    int representacao,
+    const string& nomeArquivoSaida
+) {
+    executarDijkstra(
+        verticeInicial,
+        representacao,
+        nomeArquivoSaida,
+        true
+    );
+}

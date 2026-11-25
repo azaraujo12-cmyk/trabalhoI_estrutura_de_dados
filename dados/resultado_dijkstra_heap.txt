@@ -1,0 +1,9 @@
+Resultado do Dijkstra usando heap
+Vertice inicial: 1
+
+Vertice | Distancia | Caminho minimo
+1 | 0 | 1
+2 | 2 | 1 -> 2
+3 | 3 | 1 -> 2 -> 3
+4 | 5 | 1 -> 2 -> 3 -> 4
+5 | 6 | 1 -> 2 -> 3 -> 4 -> 5

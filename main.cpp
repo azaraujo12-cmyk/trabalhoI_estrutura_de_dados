@@ -98,5 +98,12 @@ if (distancia >= 0) {
         "dados/resultado_dijkstra_vetor.txt"
     );
 
+    // Executa o Dijkstra usando heap
+grafo.dijkstraHeap(
+    verticeDijkstra,
+    opcao,
+    "dados/resultado_dijkstra_heap.txt"
+);
+
     return 0;
 }

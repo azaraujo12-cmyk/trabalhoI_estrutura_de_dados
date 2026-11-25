@@ -27,7 +27,12 @@ private:
     vector<vector<double>> matrizAdjacencia;
     vector<vector<pair<int, double>>> listaAdjacencia;
 
-
+    void executarDijkstra(
+        int verticeInicial,
+        int representacao,
+        const string& nomeArquivoSaida,
+        bool usarHeap
+    );
     public:
     Grafo();
 
@@ -61,6 +66,11 @@ void dijkstraVetor(
     const string& nomeArquivoSaida
 );
 
+void dijkstraHeap(
+        int verticeInicial,
+        int representacao,
+        const string& nomeArquivoSaida
+    );
    
 };
 
