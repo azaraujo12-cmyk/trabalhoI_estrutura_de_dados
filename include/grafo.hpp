@@ -27,12 +27,14 @@ private:
     vector<vector<double>> matrizAdjacencia;
     vector<vector<pair<int, double>>> listaAdjacencia;
 
-    void executarDijkstra(
-        int verticeInicial,
-        int representacao,
-        const string& nomeArquivoSaida,
-        bool usarHeap
-    );
+    // execulta o algoritimo sem criar arquivos durante a medição
+   void executarDijkstra(
+    int verticeInicial,
+    int representacao,
+    const string& nomeArquivoSaida,
+    bool usarHeap,
+    bool salvarResultado = true
+);
     public:
     Grafo();
 
@@ -71,6 +73,11 @@ void dijkstraHeap(
         int representacao,
         const string& nomeArquivoSaida
     );
+
+    pair<double, double> testarTempoDijkstra(
+    int representacao,
+    int repeticoes
+);
    
 };
 

@@ -24,13 +24,13 @@ int main() {
 // Cria e imprime a representacao escolhida.
     if (opcao == 1) {
         grafo.criarMatrizAdjacencia();
-       // cout << "Matriz de adjacencia criada com sucesso." << endl;
-       grafo.imprimirMatrizAdjacencia();
+       cout << "Matriz de adjacencia criada com sucesso." << endl;
+       //grafo.imprimirMatrizAdjacencia();
     }
     else if (opcao == 2) {
         grafo.criarListaAdjacencia();
-        //cout << "Lista de adjacencia criada com sucesso." << endl;
-        grafo.imprimirListaAdjacencia();
+        cout << "Lista de adjacencia criada com sucesso." << endl;
+        //grafo.imprimirListaAdjacencia();
     }
     else {
         cout << "Opcao invalida." << endl;
@@ -104,6 +104,20 @@ grafo.dijkstraHeap(
     opcao,
     "dados/resultado_dijkstra_heap.txt"
 );
+
+// Comparacao de desempenho do Dijkstra
+cout << "\nIniciando comparacao de desempenho..." << endl;
+
+pair<double, double> tempos =
+    grafo.testarTempoDijkstra(opcao, 100);
+
+cout << "\nResultados da comparacao:" << endl;
+
+cout << "Tempo medio usando vetor: "
+     << tempos.first << " ms" << endl;
+
+cout << "Tempo medio usando heap: "
+     << tempos.second << " ms" << endl;
 
     return 0;
 }

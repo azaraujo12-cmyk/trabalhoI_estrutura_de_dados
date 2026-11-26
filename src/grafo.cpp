@@ -7,6 +7,7 @@
 #include <limits>
 #include <cmath>
 #include <functional>
+#include <random>
 
 Grafo::Grafo(){
     numeroVertices = 0;
@@ -509,8 +510,9 @@ void Grafo::executarDijkstra(
     int verticeInicial,
     int representacao,
     const string& nomeArquivoSaida,
-    bool usarHeap
-) {
+    bool usarHeap,
+    bool salvarResultado
+){
     // Verifica se o vertice inicial e valido
     if (verticeInicial < 1 || verticeInicial > numeroVertices) {
         cout << "Erro: vertice inicial invalido." << endl;
@@ -648,7 +650,10 @@ void Grafo::executarDijkstra(
             }
         }
     }
-
+// Se for apenas um teste de desempenho, nao grava arquivo
+if (!salvarResultado) {
+    return;
+}
     // Cria o arquivo de resultado
     ofstream arquivoSaida(nomeArquivoSaida);
 
@@ -713,7 +718,8 @@ void Grafo::dijkstraVetor(
         verticeInicial,
         representacao,
         nomeArquivoSaida,
-        false
+        false,
+        true
     );
 }
 
@@ -728,6 +734,99 @@ void Grafo::dijkstraHeap(
         verticeInicial,
         representacao,
         nomeArquivoSaida,
+        true,
         true
     );
+}
+
+
+
+// função para sortea 100 vertices de origem, guarda, execultar , mede o tempo , divide o tempo por 100 para obter media
+pair<double, double> Grafo::testarTempoDijkstra(
+    int representacao,
+    int repeticoes
+) {
+    if (repeticoes <= 0 || numeroVertices <= 0) {
+        cout << "Quantidade de repeticoes invalida." << endl;
+        return {0.0, 0.0};
+    }
+
+    // Verifica se a representacao foi criada
+    if (representacao == 1 && matrizAdjacencia.empty()) {
+        cout << "Erro: matriz nao criada." << endl;
+        return {0.0, 0.0};
+    }
+
+    if (representacao == 2 && listaAdjacencia.empty()) {
+        cout << "Erro: lista nao criada." << endl;
+        return {0.0, 0.0};
+    }
+
+    // Verifica se existem pesos negativos
+    for (const auto& aresta : arestas) {
+        if (aresta.peso < 0) {
+            cout << "Nao e possivel comparar Dijkstra: "
+                 << "o grafo possui peso negativo." << endl;
+            return {0.0, 0.0};
+        }
+    }
+
+    // Gerador de numeros aleatorios
+    random_device dispositivo;
+    mt19937 gerador(dispositivo());
+
+    uniform_int_distribution<int> distribuicao(
+        1,
+        numeroVertices
+    );
+
+    // Sorteia as origens que serao utilizadas nos dois algoritmos
+    vector<int> origens;
+
+    for (int i = 0; i < repeticoes; i++) {
+        origens.push_back(distribuicao(gerador));
+    }
+
+    // Mede o tempo do Dijkstra usando vetor
+    auto inicioVetor = chrono::steady_clock::now();
+
+    for (int origem : origens) {
+        executarDijkstra(
+            origem,
+            representacao,
+            "",
+            false,
+            false
+        );
+    }
+
+    auto fimVetor = chrono::steady_clock::now();
+
+    // Mede o tempo do Dijkstra usando heap
+    auto inicioHeap = chrono::steady_clock::now();
+
+    for (int origem : origens) {
+        executarDijkstra(
+            origem,
+            representacao,
+            "",
+            true,
+            false
+        );
+    }
+
+    auto fimHeap = chrono::steady_clock::now();
+
+    // Calcula o tempo medio em milissegundos
+    double tempoVetor =
+        chrono::duration<double, milli>(
+            fimVetor - inicioVetor
+        ).count() / repeticoes;
+
+    double tempoHeap =
+        chrono::duration<double, milli>(
+            fimHeap - inicioHeap
+        ).count() / repeticoes;
+
+    return {tempoVetor, tempoHeap};
 }
